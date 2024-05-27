@@ -18,7 +18,6 @@ const (
 	vidUrl = "https://m.lailer.net/appgw/v2/uservideolist"
 	apiUrl = "https://m.lailer.net/appgw/v2/watchstart"
 	sessionid = "5vXZivrp6nB0QToLTmKpFesOAr8lVkhv"
-
 )
 
 func init() {

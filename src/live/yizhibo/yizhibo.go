@@ -4,20 +4,21 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
+	"fmt"
 	"github.com/hr3lxphr6j/requests"
 	"github.com/tidwall/gjson"
-
 	"github.com/hr3lxphr6j/bililive-go/src/live"
 	"github.com/hr3lxphr6j/bililive-go/src/live/internal"
 	"github.com/hr3lxphr6j/bililive-go/src/pkg/utils"
 )
 
 const (
-	domain = "www.yizhibo.com"
-	cnName = "一直播"
+	domain = "m.lailer.net"
+	cnName = "易直播"
+	vidUrl = "https://m.lailer.net/appgw/v2/uservideolist"
+	apiUrl = "https://m.lailer.net/appgw/v2/watchstart"
+	sessionid = "5vXZivrp6nB0QToLTmKpFesOAr8lVkhv"
 
-	apiUrl = "http://www.yizhibo.com/live/h5api/get_basic_live_info"
 )
 
 func init() {
@@ -37,8 +38,29 @@ type Live struct {
 }
 
 func (l *Live) requestRoomInfo() ([]byte, error) {
-	scid := strings.Split(strings.Split(l.Url.Path, "/")[2], ".")[0]
-	resp, err := requests.Get(apiUrl, live.CommonUserAgent, requests.Query("scid", scid))
+
+
+	userNumber := strings.Split(strings.Split(l.Url.Path, "/")[2], ".")[0]
+	resp0, err0 := requests.Get(vidUrl, live.CommonUserAgent, requests.Query("name", userNumber),requests.Query("start", "0"),requests.Query("sessionid", sessionid))
+
+	if err0 != nil {
+		return nil, err0
+	}
+	if resp0.StatusCode != http.StatusOK {
+		return nil, live.ErrRoomNotExist
+	}
+	body0, err0 := resp0.Bytes()
+	if err0 != nil {
+		return nil, err0
+	}
+	if gjson.GetBytes(body0,"retinfo.videos.0.living").Int() != 1 {
+		return nil, live.ErrRoomNotExist
+	}
+
+	vid := gjson.GetBytes(body0,"retinfo.videos.0.vid")
+
+
+	resp, err := requests.Get(apiUrl, live.CommonUserAgent, requests.Query("vid", vid.String()),requests.Query("sessionid", sessionid))
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +68,9 @@ func (l *Live) requestRoomInfo() ([]byte, error) {
 		return nil, live.ErrRoomNotExist
 	}
 	body, err := resp.Bytes()
+
 	if err != nil {
 		return nil, err
-	}
-	if gjson.GetBytes(body, "result").Int() != 1 {
-		return nil, live.ErrRoomNotExist
 	}
 	return body, nil
 }
@@ -62,23 +82,37 @@ func (l *Live) GetInfo() (info *live.Info, err error) {
 	}
 	info = &live.Info{
 		Live:     l,
-		HostName: gjson.GetBytes(data, "data.nickname").String(),
-		RoomName: gjson.GetBytes(data, "data.live_title").String(),
-		Status:   gjson.GetBytes(data, "data.status").Int() == 10,
+		HostName: gjson.GetBytes(data, "retinfo.nickname").String(),
+		RoomName: gjson.GetBytes(data, "retinfo.title").String(),
+		Status:   gjson.GetBytes(data, "retinfo.living").Int() == 1,
 	}
+
 	return info, nil
 }
 
 func (l *Live) GetStreamUrls() (us []*url.URL, err error) {
-	resp, err := requests.Get(l.GetRawUrl(), live.CommonUserAgent)
+	resp, err := l.requestRoomInfo()
+
 	if err != nil {
 		return nil, err
 	}
-	body, err := resp.Text()
+
+	u := gjson.GetBytes(resp, "retinfo.play_url").String()
+	newU := strings.Replace(u, "rtmp://tlive.jj17.cn", "http://tlive.lailer.net", -1)
+	modifiedURL :=newU
+	index := strings.Index(newU, "?") // 找到"?"的位置
+
+	if index != -1 {
+        // 在"?"之前插入".m3u8"
+        modifiedURL = newU[:index] + ".m3u8" + newU[index:]
+    } 
+	fmt.Println("hahaha:", modifiedURL)
+
+	// fmt.Print(newU)
 	if err != nil {
 		return nil, err
 	}
-	return utils.GenUrls(utils.Match1(`play_url:"(.*?)",?`, body))
+	return utils.GenUrls(modifiedURL)
 }
 
 func (l *Live) GetPlatformCNName() string {

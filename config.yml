@@ -13,7 +13,7 @@ feature:
   use_native_flv_parser: false
   remove_symbol_other_character: false
 live_rooms:
-- url: https://m.lailer.net/v/32571557
+- url: https://m.lailer.net/v/20001000
   is_listening: true
   qulity: 0
 - url: https://m.lailer.net/v/5208888

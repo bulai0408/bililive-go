@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"fmt"
-	"github.com/hr3lxphr6j/requests"
-	"github.com/tidwall/gjson"
+
 	"github.com/hr3lxphr6j/bililive-go/src/live"
 	"github.com/hr3lxphr6j/bililive-go/src/live/internal"
 	"github.com/hr3lxphr6j/bililive-go/src/pkg/utils"
+	"github.com/hr3lxphr6j/requests"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 	cnName = "易直播"
 	vidUrl = "https://m.lailer.net/appgw/v2/uservideolist"
 	apiUrl = "https://m.lailer.net/appgw/v2/watchstart"
-	sessionid = "5vXZivrp6nB0QToLTmKpFesOAr8lVkhv"
+	sessionid = "xOHQMeFJOKpcqV5zbATqrNwzuWlnZ8zs"
 )
 
 func init() {
@@ -58,7 +58,6 @@ func (l *Live) requestRoomInfo() ([]byte, error) {
 
 	vid := gjson.GetBytes(body0,"retinfo.videos.0.vid")
 
-
 	resp, err := requests.Get(apiUrl, live.CommonUserAgent, requests.Query("vid", vid.String()),requests.Query("sessionid", sessionid))
 	if err != nil {
 		return nil, err
@@ -97,17 +96,9 @@ func (l *Live) GetStreamUrls() (us []*url.URL, err error) {
 	}
 
 	u := gjson.GetBytes(resp, "retinfo.play_url").String()
-	newU := strings.Replace(u, "rtmp://tlive.jj17.cn", "http://tlive.lailer.net", -1)
+	
+	newU := strings.Replace(u, "tlive.jj17.cn", "tlive.lailer.net", -1)
 	modifiedURL :=newU
-	index := strings.Index(newU, "?") // 找到"?"的位置
-
-	if index != -1 {
-        // 在"?"之前插入".m3u8"
-        modifiedURL = newU[:index] + ".m3u8" + newU[index:]
-    } 
-	fmt.Println("hahaha:", modifiedURL)
-
-	// fmt.Print(newU)
 	if err != nil {
 		return nil, err
 	}

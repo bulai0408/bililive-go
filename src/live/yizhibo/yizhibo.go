@@ -17,7 +17,7 @@ const (
 	cnName = "易直播"
 	vidUrl = "https://m.lailer.net/appgw/v2/uservideolist"
 	apiUrl = "https://m.lailer.net/appgw/v2/watchstart"
-	sessionid = "xOHQMeFJOKpcqV5zbATqrNwzuWlnZ8zs"
+	sessionid = "M5qAmfUkVvDc81dTnUYoZC6HYp13ztT3"
 )
 
 func init() {

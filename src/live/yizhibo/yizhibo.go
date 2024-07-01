@@ -16,8 +16,9 @@ const (
 	domain = "m.lailer.net"
 	cnName = "易直播"
 	vidUrl = "https://m.lailer.net/appgw/v2/uservideolist"
+	userUrl =  "https://m.lailer.net/h5/easylive/user/userInfo"
 	apiUrl = "https://m.lailer.net/appgw/v2/watchstart"
-	sessionid = "xOHQMeFJOKpcqV5zbATqrNwzuWlnZ8zs"
+	sessionid = "nwydpo8UyxhrBPHoiFCInF0yi3NMM6lH"
 )
 
 func init() {
@@ -52,10 +53,6 @@ func (l *Live) requestRoomInfo() ([]byte, error) {
 	if err0 != nil {
 		return nil, err0
 	}
-	if gjson.GetBytes(body0,"retinfo.videos.0.living").Int() != 1 {
-		return nil, live.ErrRoomNotExist
-	}
-
 	vid := gjson.GetBytes(body0,"retinfo.videos.0.vid")
 
 	resp, err := requests.Get(apiUrl, live.CommonUserAgent, requests.Query("vid", vid.String()),requests.Query("sessionid", sessionid))
@@ -74,15 +71,25 @@ func (l *Live) requestRoomInfo() ([]byte, error) {
 }
 
 func (l *Live) GetInfo() (info *live.Info, err error) {
-	data, err := l.requestRoomInfo()
-	if err != nil {
-		return nil, err
+	userNumber := strings.Split(strings.Split(l.Url.Path, "/")[2], ".")[0]
+	resp, err0 := requests.Get(userUrl, live.CommonUserAgent, requests.Header("el-auth", sessionid), requests.Query("name", userNumber),requests.Query("field", "all"))
+	if err0 != nil {
+		return nil, err0
 	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, live.ErrRoomNotExist
+	}
+	body, err0 := resp.Bytes()
+
+	if err0 != nil {
+		return nil, err0
+	}
+
 	info = &live.Info{
 		Live:     l,
-		HostName: gjson.GetBytes(data, "retinfo.nickname").String(),
-		RoomName: gjson.GetBytes(data, "retinfo.title").String(),
-		Status:   gjson.GetBytes(data, "retinfo.living").Int() == 1,
+		HostName:  gjson.GetBytes(body,"nickname").String(),
+		RoomName: gjson.GetBytes(body, "titleName").String(),
+		Status:  gjson.GetBytes(body,"living").Bool(),
 	}
 
 	return info, nil
@@ -99,9 +106,7 @@ func (l *Live) GetStreamUrls() (us []*url.URL, err error) {
 	
 	newU := strings.Replace(u, "tlive.jj17.cn", "tlive.lailer.net", -1)
 	modifiedURL :=newU
-	if err != nil {
-		return nil, err
-	}
+	
 	return utils.GenUrls(modifiedURL)
 }
 

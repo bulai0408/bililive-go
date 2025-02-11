@@ -24,4 +24,5 @@ import (
 	_ "github.com/hr3lxphr6j/bililive-go/src/live/yizhibo"
 	_ "github.com/hr3lxphr6j/bililive-go/src/live/yy"
 	_ "github.com/hr3lxphr6j/bililive-go/src/live/zhanqi"
+	_ "github.com/hr3lxphr6j/bililive-go/src/live/lailer"
 )

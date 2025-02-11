@@ -71,25 +71,56 @@ func (l *Live) requestRoomInfo() ([]byte, error) {
 }
 
 func (l *Live) GetInfo() (info *live.Info, err error) {
+	// userNumber := strings.Split(strings.Split(l.Url.Path, "/")[2], ".")[0]
+	// resp, err0 := requests.Get(userUrl, live.CommonUserAgent, requests.Header("el-auth", sessionid), requests.Query("name", userNumber),requests.Query("field", "all"))
+	// if err0 != nil {
+	// 	return nil, err0
+	// }
+	// if resp.StatusCode != http.StatusOK {
+	// 	return nil, live.ErrRoomNotExist
+	// }
+	// body, err0 := resp.Bytes()
+
+	// if err0 != nil {
+	// 	return nil, err0
+	// }
+
+
+	
+
 	userNumber := strings.Split(strings.Split(l.Url.Path, "/")[2], ".")[0]
-	resp, err0 := requests.Get(userUrl, live.CommonUserAgent, requests.Header("el-auth", sessionid), requests.Query("name", userNumber),requests.Query("field", "all"))
+	resp0, err0 := requests.Get(vidUrl, live.CommonUserAgent, requests.Query("name", userNumber),requests.Query("start", "0"),requests.Query("sessionid", sessionid))
+
 	if err0 != nil {
 		return nil, err0
+	}
+	if resp0.StatusCode != http.StatusOK {
+		return nil, live.ErrRoomNotExist
+	}
+	body0, err0 := resp0.Bytes()
+	if err0 != nil {
+		return nil, err0
+	}
+	vid := gjson.GetBytes(body0,"retinfo.videos.0.vid")
+
+	resp, err := requests.Get(apiUrl, live.CommonUserAgent, requests.Query("vid", vid.String()),requests.Query("sessionid", sessionid))
+	if err != nil {
+		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, live.ErrRoomNotExist
 	}
-	body, err0 := resp.Bytes()
+	body, err := resp.Bytes()
 
-	if err0 != nil {
-		return nil, err0
+	if err != nil {
+		return nil, err
 	}
 
 	info = &live.Info{
 		Live:     l,
-		HostName:  gjson.GetBytes(body,"nickname").String(),
-		RoomName: gjson.GetBytes(body, "titleName").String(),
-		Status:  gjson.GetBytes(body,"living").Bool(),
+		HostName:  gjson.GetBytes(body,"retinfo.nickname").String(),
+		RoomName: gjson.GetBytes(body, "retinfo.title").String(),
+		Status:  gjson.GetBytes(body,"retinfo.living").Bool(),
 	}
 
 	return info, nil

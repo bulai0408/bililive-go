@@ -1,6 +1,6 @@
 module github.com/bililive-go/bililive-go
 
-go 1.23
+go 1.23.0
 
 // 暂时注释掉，不然本地运行 `golangci-lint-v2.exe run --path-mode=abs --build-tags=dev` 会报错：
 // The command is terminated due to an error: can't load config: the Go language version (go1.23) used to build golangci-lint is lower than the targeted Go version (1.24.4)

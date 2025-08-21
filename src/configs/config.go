@@ -75,6 +75,7 @@ type Config struct {
 	OutputTmpl           string               `yaml:"out_put_tmpl"`
 	VideoSplitStrategies VideoSplitStrategies `yaml:"video_split_strategies"`
 	Cookies              map[string]string    `yaml:"cookies"`
+	Lailer               LailerConfig         `yaml:"lailer"`
 	OnRecordFinished     OnRecordFinished     `yaml:"on_record_finished"`
 	TimeoutInUs          int                  `yaml:"timeout_in_us"`
 
@@ -158,6 +159,10 @@ var defaultConfig = Config{
 		DeleteFlvAfterConvert: false,
 	},
 	TimeoutInUs: 60000000,
+}
+
+type LailerConfig struct {
+	SessionID string `yaml:"sessionid"`
 }
 
 func NewConfig() *Config {

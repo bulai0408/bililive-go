@@ -40,6 +40,31 @@ func (l *Live) GetInfo() (*live.Info, error) {
 		name = strings.Trim(l.Url.Path, "/")
 	}
 	if name != "" {
+		// 先用稳定接口获取用户信息（昵称与开播状态）
+		userInfo := &url.URL{Scheme: "https", Host: domain, Path: "/h5/easylive/user/userInfo"}
+		qUser := url.Values{}
+		qUser.Set("name", name)
+		qUser.Set("field", "all")
+		userInfo.RawQuery = qUser.Encode()
+		if resp, err := l.RequestSession.Get(userInfo.String(), live.CommonUserAgent,
+			requests.Header("Accept", "application/json, text/plain, */*"),
+			requests.Header("Referer", l.Url.String()),
+		); err == nil && resp.StatusCode == http.StatusOK {
+			if body, err2 := resp.Bytes(); err2 == nil {
+				nick := gjson.GetBytes(body, "nickname").String()
+				if nick != "" {
+					living := gjson.GetBytes(body, "living").Bool()
+					return &live.Info{
+						Live:     l,
+						HostName: nick,
+						RoomName: "",
+						Status:   living,
+					}, nil
+				}
+			}
+		}
+
+		// 回退到 uservideolist 以获取状态/标题
 		cfg := configs.GetCurrentConfig()
 		sessionID := ""
 		if cfg != nil {
@@ -62,16 +87,23 @@ func (l *Live) GetInfo() (*live.Info, error) {
 		if err == nil && resp.StatusCode == http.StatusOK {
 			b, _ := resp.Bytes()
 			if gjson.GetBytes(b, "retval").String() == "ok" {
-				first := gjson.GetBytes(b, "retinfo.videos.0")
-				if first.Exists() {
-					living := first.Get("living").Int()
+				videosCount := gjson.GetBytes(b, "retinfo.videos.#").Int()
+				if videosCount == 0 {
 					return &live.Info{
 						Live:     l,
-						HostName: first.Get("nickname").String(),
-						RoomName: first.Get("title").String(),
-						Status:   living != 0,
+						HostName: name,
+						RoomName: "",
+						Status:   false,
 					}, nil
 				}
+				first := gjson.GetBytes(b, "retinfo.videos.0")
+				living := first.Get("living").Int()
+				return &live.Info{
+					Live:     l,
+					HostName: first.Get("nickname").String(),
+					RoomName: first.Get("title").String(),
+					Status:   living != 0,
+				}, nil
 			}
 		}
 	}

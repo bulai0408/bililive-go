@@ -13,10 +13,30 @@ feature:
   use_native_flv_parser: false
   remove_symbol_other_character: false
 live_rooms:
-- url: https://m.lailer.net/users/66666666
-  is_listening: true
-- url: https://m.lailer.net/users/5208888
-  is_listening: true
+  - url: https://m.lailer.net/users/5208888
+    is_listening: true
+  - url: http://m.lailer.net/users/48873974
+    is_listening: true
+  - url: http://m.lailer.net/users/28092040
+    is_listening: true
+  - url: http://m.lailer.net/users/13087417
+    is_listening: true
+  - url: http://m.lailer.net/users/20001000
+    is_listening: true
+  - url: https://m.lailer.net/users/17460678
+    is_listening: true
+  - url: http://m.lailer.net/users/88888899
+    is_listening: true
+  - url: http://m.lailer.net/users/13141777
+    is_listening: true
+  - url: http://m.lailer.net/users/7777771
+    is_listening: true
+  - url: http://m.lailer.net/users/20249116
+    is_listening: true
+  - url: http://m.lailer.net/users/52018888
+    is_listening: true
+  - url: http://m.lailer.net/users/7777779
+    is_listening: true
 out_put_tmpl: ""
 video_split_strategies:
   on_room_name_changed: false
@@ -24,9 +44,9 @@ video_split_strategies:
   max_file_size: 0
 cookies: {}
 lailer:
-  sessionid: HdbLlf5p0oyzkYMFAcAgj3FCvsjJ5CFl
+  sessionid: ITDv4roDcj3MhmtKCyPxCT73j2dYsg54
 on_record_finished:
-  convert_to_mp4: true
-  delete_flv_after_convert: true
+  convert_to_mp4: false
+  delete_flv_after_convert: false
   custom_commandline: ""
 timeout_in_us: 60000000

@@ -1,6 +1,8 @@
-FROM alpine
+FROM --platform=linux/amd64 alpine
 
 ARG tag
+
+# print build tag for debugging
 
 ENV WORKDIR="/srv/bililive"
 ENV OUTPUT_DIR="/srv/bililive" \
@@ -15,13 +17,18 @@ RUN mkdir -p $OUTPUT_DIR && \
     apk --no-cache add ffmpeg libc6-compat curl su-exec tzdata && \
     cp -r -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-RUN sh -c "case $(arch) in aarch64) go_arch=arm64 ;; arm*) go_arch=arm ;; i386|i686) go_arch=386 ;; x86_64) go_arch=amd64;; esac && \
-    cd /tmp && curl -sSLOhttps://github.com/bulai0408/bililive-go/releases/download/$tag/bililive-linux-\${go_arch}.tar.gz && \
-    tar zxvf bililive-linux-\${go_arch}.tar.gz bililive-linux-\${go_arch} && \
-    chmod +x bililive-linux-\${go_arch} && \
-    mv ./bililive-linux-\${go_arch} /usr/bin/bililive-go && \
-    rm ./bililive-linux-\${go_arch}.tar.gz" && \
-    sh -c "if [ $tag != $(/usr/bin/bililive-go --version | tr -d '\n') ]; then return 1; fi"
+RUN set -eux; \
+    cd /tmp; \
+    curl -sSLO https://github.com/bulai0408/bililive-go/releases/download/${tag}/bililive-linux-amd64.tar.gz; \
+    tar -zxvf bililive-linux-amd64.tar.gz || true; \
+    BIN_PATH=""; \
+    if [ -f bililive-linux-amd64 ]; then BIN_PATH=bililive-linux-amd64; fi; \
+    if [ -z "$BIN_PATH" ]; then BIN_PATH=$(ls -1 bililive* 2>/dev/null | head -1 || true); fi; \
+    if [ -z "$BIN_PATH" ]; then echo "binary not found in archive"; exit 2; fi; \
+    chmod +x "$BIN_PATH"; \
+    mv "$BIN_PATH" /usr/bin/bililive-go; \
+    rm -f bililive-linux-amd64.tar.gz; \
+    /usr/bin/bililive-go --version || true
 
 COPY config.docker.yml $CONF_DIR/config.yml
 

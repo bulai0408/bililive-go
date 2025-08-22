@@ -149,7 +149,6 @@ func (p *Parser) ParseLiveStream(ctx context.Context, streamUrlInfo *live.Stream
 		"-rw_timeout", p.timeoutInUs,
 		"-i", url.String(),
 		"-c", "copy",
-		"-bsf:a", "aac_adtstoasc",
 	}
 	for k, v := range headers {
 		if k == "User-Agent" || k == "Referer" {

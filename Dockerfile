@@ -47,7 +47,7 @@ RUN set -x; \
     *) echo "Unsupported arch: $(arch)"; exit 1 ;; \
     esac; \
     echo "Downloading release ${tag} for arch ${go_arch}"; \
-    cd /tmp && curl -sSLO "https://github.com/bulai0408/bililive-go/releases/download/${tag}/bililive-linux-amd64.tar.gz" && \
+    cd /tmp && curl -sSLO "https://github.com/bulai0408/bililive-go/releases/download/${tag}/bililive-linux-${go_arch}.tar.gz" && \
     tar zxvf "bililive-linux-${go_arch}.tar.gz" "bililive-linux-${go_arch}" && \
     chmod +x "bililive-linux-${go_arch}" && \
     mv "./bililive-linux-${go_arch}" /usr/bin/bililive-go && \

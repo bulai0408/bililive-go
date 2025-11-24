@@ -100,6 +100,7 @@ type Config struct {
 	OutputTmpl           string               `yaml:"out_put_tmpl"`
 	VideoSplitStrategies VideoSplitStrategies `yaml:"video_split_strategies"`
 	Cookies              map[string]string    `yaml:"cookies"`
+	Lailer               LailerConfig         `yaml:"lailer"`
 	OnRecordFinished     OnRecordFinished     `yaml:"on_record_finished"`
 	TimeoutInUs          int                  `yaml:"timeout_in_us"`
 	Notify               Notify               `yaml:"notify"` // 通知服务配置
@@ -210,6 +211,10 @@ var defaultConfig = Config{
 	AppDataPath:        "",
 	ReadOnlyToolFolder: "",
 	ToolRootFolder:     "",
+}
+
+type LailerConfig struct {
+	SessionID string `yaml:"sessionid"`
 }
 
 func NewConfig() *Config {

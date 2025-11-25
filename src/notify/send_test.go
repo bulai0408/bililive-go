@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/bililive-go/bililive-go/src/configs"
 	"github.com/bililive-go/bililive-go/src/consts"
 )
 
@@ -33,8 +34,14 @@ func TestSendNotificationStart(t *testing.T) {
 		}
 	}()
 
+	// 构造一个启用通知的房间配置
+	enableNotify := true
+	roomConfig := &configs.LiveRoom{
+		TelegramNotify: &enableNotify,
+	}
+
 	// 调用SendNotification函数，使用开始状态
-	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", consts.LiveStatusStart)
+	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", consts.LiveStatusStart, roomConfig)
 
 	// 检查是否有错误返回（注意：在没有配置的情况下，可能会返回错误）
 	// 这里我们主要关注函数是否能正常执行，而不是是否真的发送了通知
@@ -52,8 +59,14 @@ func TestSendNotificationStop(t *testing.T) {
 		}
 	}()
 
+	// 构造一个启用通知的房间配置
+	enableNotify := true
+	roomConfig := &configs.LiveRoom{
+		TelegramNotify: &enableNotify,
+	}
+
 	// 调用SendNotification函数，使用结束状态
-	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", consts.LiveStatusStop)
+	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", consts.LiveStatusStop, roomConfig)
 
 	// 检查是否有错误返回（注意：在没有配置的情况下，可能会返回错误）
 	// 这里我们主要关注函数是否能正常执行，而不是是否真的发送了通知
@@ -72,7 +85,7 @@ func TestSendNotificationUnknown(t *testing.T) {
 	}()
 
 	// 调用SendNotification函数，使用未知状态
-	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", "unknown_status")
+	err := SendNotification(context.Background(), "测试主播", "测试平台", "https://example.com/live", "unknown_status", nil)
 
 	// 检查是否有错误返回
 	_ = err // 在实际测试中，我们可能需要检查错误

@@ -79,8 +79,15 @@ func (l *listener) Close() {
 func (l *listener) sendLiveNotification(hostName, status string) {
 	// 创建context用于日志记录
 	ctx := context.Background()
+
+	// 尝试获取房间配置
+	roomConfig, err := l.config.GetLiveRoomByUrl(l.Live.GetRawUrl())
+	if err != nil {
+		l.logger.WithField("url", l.Live.GetRawUrl()).Debug("room config not found, skipping telegram notification check")
+	}
+
 	// 发送通知
-	if err := notify.SendNotification(ctx, hostName, l.Live.GetPlatformCNName(), l.Live.GetRawUrl(), status); err != nil {
+	if err := notify.SendNotification(ctx, hostName, l.Live.GetPlatformCNName(), l.Live.GetRawUrl(), status, roomConfig); err != nil {
 		l.logger.WithError(err).WithField("host", hostName).Error("failed to send notification")
 	}
 }

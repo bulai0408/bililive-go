@@ -125,12 +125,13 @@ func GetCurrentConfig() *Config {
 }
 
 type LiveRoom struct {
-	Url         string       `yaml:"url"`
-	IsListening bool         `yaml:"is_listening"`
-	LiveId      types.LiveID `yaml:"-"`
-	Quality     int          `yaml:"quality,omitempty"`
-	AudioOnly   bool         `yaml:"audio_only,omitempty"`
-	NickName    string       `yaml:"nick_name,omitempty"`
+	Url            string       `yaml:"url"`
+	IsListening    bool         `yaml:"is_listening"`
+	LiveId         types.LiveID `yaml:"-"`
+	Quality        int          `yaml:"quality,omitempty"`
+	AudioOnly      bool         `yaml:"audio_only,omitempty"`
+	NickName       string       `yaml:"nick_name,omitempty"`
+	TelegramNotify *bool        `yaml:"telegram_notify"` // 是否发送Telegram通知（白名单模式：需显式设为true才发送）
 }
 
 type liveRoomAlias LiveRoom
